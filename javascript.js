@@ -5,10 +5,10 @@ function Cell() {
     const addMark = (newMark) => {
         if (mark === null) {
             mark = newMark;
-        }
+        };
     };
     return { getMark, addMark };
-}
+};
 
 // Game Board logic function
 function GameBoard() {
@@ -21,8 +21,8 @@ function GameBoard() {
         board[i] = [];
         for (let j = 0; j < columns; j++) {
             board[i].push(Cell());
-        }
-    }
+        };
+    };
 
     const getBoard = () => board;
     const placeMarker = (row, col, marker) => {
@@ -33,8 +33,8 @@ function GameBoard() {
         for (let i = 0; i < rows; i++) {
             for (let j = 0; j < columns; j++) {
                 board[i][j].addMark(null);
-            }
-        }
+            };
+        };
     };
     const getBoardState = () => board.map(row => row.map(cell => cell.getMark()));
 
@@ -43,24 +43,23 @@ function GameBoard() {
 
 // Game controller
 function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwoMarker) {
-    const createPlayer = (name, marker) => {
-        return { name, marker };
+    const createPlayer = (name, marker, isAi = false) => {
+        return { name, marker, isAi };
     };
 
     const board = GameBoard();
-    
+
     // Create players
     const playerOne = createPlayer(playerOneName, playerOneMarker);
-    const playerTwo = createPlayer(playerTwoName, playerTwoMarker);
-    const getPlayers = () => [playerOne, playerTwo];
-    
-    const players = getPlayers();
+    const playerTwo = createPlayer(playerTwoName, playerTwoMarker, playerTwoName === 'Computer');
+    const players = [playerOne, playerTwo];
 
     let activePlayer = players[0];
 
     const switchPlayerTurn = () => {
         activePlayer = activePlayer === players[0] ? players[1] : players[0];
     };
+
     const getActivePlayer = () => activePlayer;
 
     const checkWin = (marker) => {
@@ -77,36 +76,50 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
         if (boardState.every((row, index) => row[2 - index] === marker)) return true;
 
         return false;
-    }
-
+    };
+    // Check for tie
     const isTie = () => {
         const boardState = board.getBoardState();
         return boardState.flat().every(cell => cell !== null) && !checkWin(activePlayer.marker);
     };
 
-    const playRound = (row, col) => {
+    const playRound = (row, col, game) => {
         // Validate Move
-        if (board.getBoard()[row][col].getMark() !== null) {
-            return;
+        if (board.getBoard()[row][col].getMark() !== null || activePlayer.isAi) {
+            return; // Prevent invalid moves or multiple clicks
         }
 
         board.placeMarker(row, col, activePlayer.marker);
 
         // Check for win or tie
         if (checkWin(activePlayer.marker)) {
-            return `${activePlayer.name} wins!`;
+             return `${activePlayer.name} wins!`;
         }
 
         if (isTie()) {
             return "It's a Draw!";
         }
 
-        // Switch Turn and prepare next round
+        // Switch turn
         switchPlayerTurn();
-        return `${getActivePlayer().name}'s turn.`;
+
     };
 
-    return { getActivePlayer, playRound, getBoardState: board.getBoardState };
+    const makeAiMove = () => {
+        const boardState = board.getBoardState();
+
+        // AI logic: Choose the first empty call
+        for (let row = 0; row < 3; row++) {
+            for (let col = 0; col < 3; col++) {
+                if (boardState[row][col] === null) {
+                    board.placeMarker(row, col, activePlayer.marker);
+                    return;
+                };
+            };
+        };
+    };
+
+    return { getActivePlayer, playRound, getBoardState: board.getBoardState, makeAiMove, checkWin, isTie, switchPlayerTurn };
 }
 
 // DOM/Display logic
@@ -135,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
             playerTwoName = document.querySelector('#player-two')?.value.trim() || '';
 
             startGameBtn.disabled = (gameMode === '1-player' && !playerOneName) ||
-                                    (gameMode === '2-player' && (!playerOneName || !playerTwoName));
+                (gameMode === '2-player' && (!playerOneName || !playerTwoName));
         }));
     };
 
@@ -157,18 +170,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Display logic
+
+// Display Logic
 function DisplayGame(game) {
     const playerTurn = document.querySelector('.turn');
     const boardDiv = document.querySelector('.gameboard');
 
     const updateDisplay = () => {
-        boardDiv.innerHTML = ''; // Clear the board
+        boardDiv.innerHTML = ''; // Clear The Board
 
-        const boardState = game.getBoardState(); // Get Current Board state
+        const boardState = game.getBoardState(); // Get current Board State
         const currentPlayer = game.getActivePlayer();
 
-        // Render game board
+        // Render Game board
         boardState.forEach((row, rowIndex) => {
             row.forEach((cell, colIndex) => {
                 const cellDiv = document.createElement('div');
@@ -179,14 +193,37 @@ function DisplayGame(game) {
             });
         });
 
-        playerTurn.textContent = `${currentPlayer.name}'s turn.`; // Update player turn
+        playerTurn.textContent = `${currentPlayer.name}'s turn.`; // Update Player Turn
     };
 
     const handleCellClick = (row, col) => {
         const result = game.playRound(row, col);
         updateDisplay();
 
-        if (result) alert(result);
+        if (result) {
+            return result;
+        };
+
+        const activePlayer = game.getActivePlayer();
+        if (activePlayer.isAi) {
+            setTimeout(() => {
+                game.makeAiMove(); // AI makes its move
+                updateDisplay();
+    
+                const boardState = game.getBoardState();
+                if (game.checkWin(activePlayer.marker)) {
+                    return `${active.Player.name} wins!`;
+                } else if (game.isTie()) {
+                    return "It's A Draw!"
+                }
+
+                // Switch back to user turn if the game isn't over
+                if (!game.checkWin(activePlayer.marker) && !game.isTie()) {
+                    game.switchPlayerTurn();
+                    updateDisplay();
+                }
+            }, 600); // Simulate AI thinking for 0.6 seconds
+        };
     };
 
     updateDisplay();
