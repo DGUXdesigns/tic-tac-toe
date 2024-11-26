@@ -1,55 +1,50 @@
-//Cell
+// Cell function
 function Cell() {
     let mark = null;
-
     const getMark = () => mark;
     const addMark = (newMark) => {
         if (mark === null) {
             mark = newMark;
-        };
+        }
     };
-
-    return {getMark, addMark};
+    return { getMark, addMark };
 }
 
-// Game board logic
+// Game Board logic function
 function GameBoard() {
     const rows = 3;
     const columns = 3;
     const board = [];
 
-    for(let i = 0; i < rows; i++) {
+    // Create the 3x3 board
+    for (let i = 0; i < rows; i++) {
         board[i] = [];
-        for(let j = 0; j < columns; j++) {
+        for (let j = 0; j < columns; j++) {
             board[i].push(Cell());
-        };
-    };
-
-    const getBoard = () => board;
-
-    const placeMarker = (row, col, marker) => {
-        const Cell = board[row][col];
-        Cell.addMark(marker);
+        }
     }
 
-    const resetBoard = () => {
-        for(let i = 0; i < rows; i++) {
-            for(let j = 0; j < columns; j++) {
-                board[i][j].addMark(null);
-            };
-        };         
+    const getBoard = () => board;
+    const placeMarker = (row, col, marker) => {
+        const cell = board[row][col];
+        cell.addMark(marker);
     };
+    const resetBoard = () => {
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                board[i][j].addMark(null);
+            }
+        }
+    };
+    const getBoardState = () => board.map(row => row.map(cell => cell.getMark()));
 
-    const getBoardState = () => board.map(row => row.map(Cell => Cell.getMark()));
-
-    return {getBoard, placeMarker, resetBoard, getBoardState};
+    return { getBoard, placeMarker, resetBoard, getBoardState };
 }
 
 // Game controller
 function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwoMarker) {
     const createPlayer = (name, marker) => {
-        // const getInfo = () => `${name} (${marker})`;
-        return { name, marker};
+        return { name, marker };
     };
 
     const board = GameBoard();
@@ -77,7 +72,7 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
             if (boardState.every(row => row[i] === marker)) return true; // Check column
         }
 
-        //Check Diagonals
+        // Check Diagonals
         if (boardState.every((row, index) => row[index] === marker)) return true;
         if (boardState.every((row, index) => row[2 - index] === marker)) return true;
 
@@ -97,13 +92,13 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
 
         board.placeMarker(row, col, activePlayer.marker);
 
-        //Check for win or tie
+        // Check for win or tie
         if (checkWin(activePlayer.marker)) {
             return `${activePlayer.name} wins!`;
         }
 
         if (isTie()) {
-            return "It's a tie!";
+            return "It's a Draw!";
         }
 
         // Switch Turn and prepare next round
@@ -111,12 +106,51 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
         return `${getActivePlayer().name}'s turn.`;
     };
 
-    return {getActivePlayer, playRound};
-};
+    return { getActivePlayer, playRound, getBoardState: board.getBoardState };
+}
 
 // Display factory
 function DisplayGame() {
+    const game = GameController('Alex', 'John', 'X', 'O');
+    const playerTurn = document.querySelector('.turn');
+    const boardDiv = document.querySelector('.gameboard');
 
+    const updateDisplay = () => {
+        // Clear the Board
+        boardDiv.innerHTML = '';
+
+        // Get the current board state and player turn
+        const boardState = game.getBoardState();
+        const currentPlayer = game.getActivePlayer();
+
+        // Render the board
+        boardState.forEach((row, rowIndex) => {
+            row.forEach((cell, colIndex) => {
+                const cellDiv = document.createElement('div');
+                cellDiv.classList.add('cell');
+                cellDiv.textContent = cell ? cell : '';
+                cellDiv.addEventListener('click', () => handleCellClick(rowIndex, colIndex)); // Cell click handler
+                
+                console.log(`Creating cell at row: ${rowIndex}, col: ${colIndex}`);
+
+                boardDiv.appendChild(cellDiv);
+            });
+        });
+
+        // Update player turn
+        playerTurn.textContent = `${currentPlayer.name}'s turn.`;
+    };
+
+    const handleCellClick = (row, col) => {
+        const result = game.playRound(row, col);
+        updateDisplay();
+
+        if (result) {
+            alert(result);  // Display the win/tie result
+        }
+    };
+
+    updateDisplay();  // Initial render
 }
 
-//TEST
+DisplayGame();  // Start the game
