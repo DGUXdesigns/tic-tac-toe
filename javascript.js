@@ -109,48 +109,85 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
     return { getActivePlayer, playRound, getBoardState: board.getBoardState };
 }
 
-// Display factory
-function DisplayGame() {
-    const game = GameController('Alex', 'John', 'X', 'O');
+// DOM/Display logic
+document.addEventListener('DOMContentLoaded', () => {
+    const startScreen = document.querySelector('.start-screen');
+    const gameContainer = document.querySelector('.game-container');
+    const playerInputsDiv = document.querySelector('#player-inputs');
+    const startGameBtn = document.querySelector('#start-game');
+
+    let gameMode = null;
+    let playerOneName = '';
+    let playerTwoName = '';
+
+    // Handle game mode selection
+    const handleModeSelection = (mode) => {
+        gameMode = mode;
+        playerInputsDiv.innerHTML = mode === '1-player'
+            ? '<label>Player 1 Name: <input type="text" id="player-one"></label>'
+            : '<label>Player 1 Name: <input type="text" id="player-one"></label><label>Player 2 Name: <input type="text" id="player-two"></label>';
+
+        startGameBtn.disabled = true;
+
+        const inputs = playerInputsDiv.querySelectorAll('input');
+        inputs.forEach(input => input.addEventListener('input', () => {
+            playerOneName = document.querySelector('#player-one')?.value.trim() || '';
+            playerTwoName = document.querySelector('#player-two')?.value.trim() || '';
+
+            startGameBtn.disabled = (gameMode === '1-player' && !playerOneName) ||
+                                    (gameMode === '2-player' && (!playerOneName || !playerTwoName));
+        }));
+    };
+
+    // Attach event listeners for game mode buttons
+    document.querySelector('#one-player').addEventListener('click', () => handleModeSelection('1-player'));
+    document.querySelector('#two-player').addEventListener('click', () => handleModeSelection('2-player'));
+
+    // Start game button logic
+    startGameBtn.addEventListener('click', () => {
+        startScreen.style.display = 'none';
+        gameContainer.style.display = 'flex';
+
+        const isSinglePlayer = gameMode === '1-player';
+        const playerTwoNameOrAi = isSinglePlayer ? 'Computer' : playerTwoName;
+
+        // Create game instance and start the display
+        const game = GameController(playerOneName, playerTwoNameOrAi, 'X', 'O');
+        DisplayGame(game);
+    });
+});
+
+// Display logic
+function DisplayGame(game) {
     const playerTurn = document.querySelector('.turn');
     const boardDiv = document.querySelector('.gameboard');
 
     const updateDisplay = () => {
-        // Clear the Board
-        boardDiv.innerHTML = '';
+        boardDiv.innerHTML = ''; // Clear the board
 
-        // Get the current board state and player turn
-        const boardState = game.getBoardState();
+        const boardState = game.getBoardState(); // Get Current Board state
         const currentPlayer = game.getActivePlayer();
 
-        // Render the board
+        // Render game board
         boardState.forEach((row, rowIndex) => {
             row.forEach((cell, colIndex) => {
                 const cellDiv = document.createElement('div');
                 cellDiv.classList.add('cell');
                 cellDiv.textContent = cell ? cell : '';
-                cellDiv.addEventListener('click', () => handleCellClick(rowIndex, colIndex)); // Cell click handler
-                
-                console.log(`Creating cell at row: ${rowIndex}, col: ${colIndex}`);
-
+                cellDiv.addEventListener('click', () => handleCellClick(rowIndex, colIndex));
                 boardDiv.appendChild(cellDiv);
             });
         });
 
-        // Update player turn
-        playerTurn.textContent = `${currentPlayer.name}'s turn.`;
+        playerTurn.textContent = `${currentPlayer.name}'s turn.`; // Update player turn
     };
 
     const handleCellClick = (row, col) => {
         const result = game.playRound(row, col);
         updateDisplay();
 
-        if (result) {
-            alert(result);  // Display the win/tie result
-        }
+        if (result) alert(result);
     };
 
-    updateDisplay();  // Initial render
+    updateDisplay();
 }
-
-DisplayGame();  // Start the game
