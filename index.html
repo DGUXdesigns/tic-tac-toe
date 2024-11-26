@@ -1,14 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./stylesheet.css">
     <title>Tic Tac Toe | Dave The Dev</title>
 </head>
+
 <body>
-    
-    
-    <script src="javascript.js"></script>
+    <!-- START SCREEN -->
+    <div class="start-screen">
+        <h1>Tic Tac Toe</h1>
+        <div>
+            <button id="one-player">One Player</button>
+            <button id="two-player">Two Player</button>
+        </div>
+        <div id="player-inputs">
+            <!-- player input fields dynamically shown -->
+        </div>
+        <button id="start-game">Start Game</button>
+    </div>
+    <!-- GAME -->
+    <div class="game-container">
+        <header>
+            <h1>Tic Tac Toe</h1>
+        </header>
+
+        <div class="game-wrapper">
+            <div class="playerOne">
+                <h2>Alex (X)</h2>
+                <p>Score: 0</p>
+            </div>
+
+            <div class="gameboard">
+            </div>
+                <!-- Rendered in javascript -->
+            <div class="playerTwo">
+                <h2>John (O)</h2>
+                <p>Score: 0</p>
+            </div>
+        </div>
+
+        <div class="turn">
+            <!-- Dynamically shown -->
+        </div>
+    </div>
+
+    <script src="./javascript.js"></script>
 </body>
+
 </html>
