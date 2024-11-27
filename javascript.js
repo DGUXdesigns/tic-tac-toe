@@ -259,13 +259,15 @@ function DisplayGame(game) {
     
         if (result) {
             gameOver = true; // Set gameOver immediately
-            playerTurn.textContent = result; 
+            playerTurn.textContent = result;
             updateDisplay(); // Refresh display
             return;
         }
-        // If no result, proceed to update the display and check AI moves
-        const activePlayer = game.getActivePlayer();
     
+        updateDisplay(); // Update display after player's move
+    
+        // Check if it's AI's turn
+        const activePlayer = game.getActivePlayer();
         if (activePlayer.isAi) {
             setTimeout(() => {
                 game.makeAiMove(); // AI makes its move
@@ -280,11 +282,10 @@ function DisplayGame(game) {
                     playerTurn.textContent = aiResult;
                 } else {
                     game.switchPlayerTurn();
-                    updateDisplay(); // Continue the game
                 }
-            }, 300); // Simulate AI thinking for 0.3 seconds
-        } else {
-            updateDisplay(); // Update display for the next player
+    
+                updateDisplay(); // Refresh display after AI's move
+            }, 500); // Simulate AI thinking for 0.5 seconds
         }
     };
 
