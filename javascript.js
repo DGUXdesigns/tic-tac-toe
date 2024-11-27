@@ -44,7 +44,7 @@ function GameBoard() {
 // Game controller
 function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwoMarker) {
     const createPlayer = (name, marker, isAi = false) => {
-        return { name, marker, isAi };
+        return { name, marker, isAi, score: 0 };
     };
 
     const board = GameBoard();
@@ -83,7 +83,7 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
         return boardState.flat().every(cell => cell !== null) && !checkWin(activePlayer.marker);
     };
 
-    const playRound = (row, col, game) => {
+    const playRound = (row, col) => {
         // Validate Move
         if (board.getBoard()[row][col].getMark() !== null || activePlayer.isAi) {
             return; // Prevent invalid moves or multiple clicks
@@ -108,7 +108,7 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
     const makeAiMove = () => {
         const boardState = board.getBoardState();
 
-        // AI logic: Choose the first empty call
+        // AI logic: Choose the first empty cell
         for (let row = 0; row < 3; row++) {
             for (let col = 0; col < 3; col++) {
                 if (boardState[row][col] === null) {
@@ -119,7 +119,23 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
         };
     };
 
-    return { getActivePlayer, playRound, getBoardState: board.getBoardState, makeAiMove, checkWin, isTie, switchPlayerTurn };
+    const getScores = () => {
+        return {
+            playerOneScore: playerOne.score,
+            playerTwoScore: playerTwo.score
+        };
+    };
+
+    return { 
+        getActivePlayer, 
+        playRound, 
+        getBoardState: board.getBoardState, 
+        makeAiMove, 
+        checkWin, 
+        isTie, 
+        switchPlayerTurn,
+        getScores
+     };
 }
 
 // DOM/Display logic
@@ -137,8 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const handleModeSelection = (mode) => {
         gameMode = mode;
         playerInputsDiv.innerHTML = mode === '1-player'
-            ? '<label>Player 1 Name: <input type="text" id="player-one"></label>'
-            : '<label>Player 1 Name: <input type="text" id="player-one"></label><label>Player 2 Name: <input type="text" id="player-two"></label>';
+            ? '<label>Player 1 <input type="text" id="player-one"></label>'
+            : '<label>Player 1 <input type="text" id="player-one"></label><label>Player 2 <input type="text" id="player-two"></label>';
 
         startGameBtn.disabled = true;
 
@@ -153,8 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Attach event listeners for game mode buttons
-    document.querySelector('#one-player').addEventListener('click', () => handleModeSelection('1-player'));
-    document.querySelector('#two-player').addEventListener('click', () => handleModeSelection('2-player'));
+    document.querySelector('#one-player').addEventListener('click', () => {
+        handleModeSelection('1-player');
+        startGameBtn.style.display = 'block';
+    })
+    document.querySelector('#two-player').addEventListener('click', () => {
+        handleModeSelection('2-player');
+        startGameBtn.style.display = 'block';
+    });
 
     // Start game button logic
     startGameBtn.addEventListener('click', () => {
@@ -169,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
         DisplayGame(game);
     });
 });
-
 
 // Display Logic
 function DisplayGame(game) {
@@ -222,7 +243,7 @@ function DisplayGame(game) {
                     game.switchPlayerTurn();
                     updateDisplay();
                 }
-            }, 600); // Simulate AI thinking for 0.6 seconds
+            }, 500); // Simulate AI thinking for 0.6 seconds
         };
     };
 
