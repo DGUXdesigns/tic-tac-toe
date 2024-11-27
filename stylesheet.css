@@ -1,0 +1,220 @@
+* {
+    color: white;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif, sans-serif;
+}
+
+body {
+    background-color: #181510;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    justify-content: center;
+}
+
+h1 {
+    font-size: 3rem;
+    color: #D2B68A; /* Gold color for the title */
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size: 2rem;
+    color: #D2B68A;
+}
+
+p {
+    font-size: 1.5rem;
+    color: #785f37;
+}
+
+button {
+    background-color: #000000;
+    color: #D2B68A;
+    border: 2px solid #D2B68A;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+    background-color: #D2B68A;
+    color: #000000;
+    transform: scale(1.1);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
+}
+
+button:disabled {
+    background-color: #333333; 
+    color: #999999; 
+    border: 2px solid #444444; 
+    cursor: not-allowed;
+    box-shadow: none; 
+}
+
+button:focus {
+    outline: none; 
+    box-shadow: 0 0 10px #ffd700;
+}
+
+/* Game Board Layout */
+.gameboard {
+    display: grid;
+    grid-template: repeat(3, 125px) / repeat(3, 125px);
+    border-radius: 1.5rem;
+    gap: 10px;
+    overflow: hidden;
+    min-width: 375px;
+    margin: 4%;
+}
+
+/* gameboard cell styling */
+.cell {
+    width: 125px;
+    height: 125px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 6em;
+    background-color: #D2B68A;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.cell:hover {
+    transform: scale(1.05);
+    background-color: #e9dbbd;
+}
+
+/* Game Container Layout */
+.game-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.game-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100vh;
+    position: relative;
+}
+
+.playerOne-info, 
+.playerTwo-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* Start Screen */
+.start-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100vh;
+    padding-top: 10rem;
+    position: relative;
+}
+
+/* Start Screen Title Positioned at the Top */
+.start-screen h1,
+.game-container h1 {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+}
+
+.start-screen #start-game {
+    display: none;
+}
+
+.btn-container {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.start-screen input,
+.start-screen button {
+    margin-bottom: 2rem;
+}
+
+label {
+    font-size: 1.25rem;
+    color: #D2B68A;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5rem;
+    width: auto;
+}
+
+/* Input Field Styling */
+input {
+    background-color: #333333;
+    color: white;
+    border: 2px solid #D2B68A; 
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem; 
+    width: auto; 
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+input:focus {
+    outline: none;
+    border-color: #ffd700; 
+    background-color: #444444;
+    box-shadow: 0 0 10px #ffd700;
+}
+
+.restart {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    order: 1;
+}
+
+/* Style for turn div. */
+.turn {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 20px;
+    padding: 0;
+}
+
+button.playAgain {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #D2B68A;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button.playAgain:hover {
+    background-color: #000;
+    color: #D2B68A;
+}
