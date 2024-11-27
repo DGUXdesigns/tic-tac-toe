@@ -93,7 +93,7 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
 
         // Check for win or tie
         if (checkWin(activePlayer.marker)) {
-             return `${activePlayer.name} wins!`;
+            return `${activePlayer.name} wins!`;
         }
 
         if (isTie()) {
@@ -126,16 +126,18 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
         };
     };
 
-    return { 
-        getActivePlayer, 
-        playRound, 
-        getBoardState: board.getBoardState, 
-        makeAiMove, 
-        checkWin, 
-        isTie, 
+    return {
+        getActivePlayer,
+        playRound,
+        getBoardState: board.getBoardState,
+        makeAiMove,
+        checkWin,
+        isTie,
         switchPlayerTurn,
-        getScores
-     };
+        getScores,
+        playerOne,
+        playerTwo
+    };
 }
 
 // DOM/Display logic
@@ -148,6 +150,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameMode = null;
     let playerOneName = '';
     let playerTwoName = '';
+
+
 
     // Handle game mode selection
     const handleModeSelection = (mode) => {
@@ -190,15 +194,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const game = GameController(playerOneName, playerTwoNameOrAi, 'X', 'O');
         DisplayGame(game);
     });
+
 });
 
 // Display Logic
 function DisplayGame(game) {
     const playerTurn = document.querySelector('.turn');
     const boardDiv = document.querySelector('.gameboard');
+    const playerOneInfoDiv = document.querySelector('.playerOne-info');
+    const playerTwoInfoDiv = document.querySelector('.playerTwo-info');
 
     const updateDisplay = () => {
         boardDiv.innerHTML = ''; // Clear The Board
+        playerOneInfoDiv.innerHTML = '';
+        playerTwoInfoDiv.innerHTML = '';
 
         const boardState = game.getBoardState(); // Get current Board State
         const currentPlayer = game.getActivePlayer();
@@ -215,6 +224,23 @@ function DisplayGame(game) {
         });
 
         playerTurn.textContent = `${currentPlayer.name}'s turn.`; // Update Player Turn
+
+        // Display player Info
+        const scores = game.getScores();
+        const playerOneName = document.createElement('h2');
+        const playerOneScore = document.createElement('p');
+        const playerTwoName = document.createElement('h2');
+        const playerTwoScore = document.createElement('p');
+
+        playerOneName.textContent = `${game.playerOne.name}`;
+        playerOneScore.textContent = `Score: ${scores.playerOneScore}`;
+        playerOneInfoDiv.appendChild(playerOneName);
+        playerOneInfoDiv.appendChild(playerOneScore);
+
+        playerTwoName.textContent = `${game.playerTwo.name}`;
+        playerTwoScore.textContent = `Score: ${scores.playerTwoScore}`;
+        playerTwoInfoDiv.appendChild(playerTwoName);
+        playerTwoInfoDiv.appendChild(playerTwoScore);
     };
 
     const handleCellClick = (row, col) => {
@@ -230,7 +256,7 @@ function DisplayGame(game) {
             setTimeout(() => {
                 game.makeAiMove(); // AI makes its move
                 updateDisplay();
-    
+
                 const boardState = game.getBoardState();
                 if (game.checkWin(activePlayer.marker)) {
                     return `${active.Player.name} wins!`;
