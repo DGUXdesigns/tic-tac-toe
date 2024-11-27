@@ -93,6 +93,7 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
 
         // Check for win or tie
         if (checkWin(activePlayer.marker)) {
+            activePlayer.score++;
             return `${activePlayer.name} wins!`;
         }
 
@@ -269,7 +270,7 @@ function DisplayGame(game) {
                     game.switchPlayerTurn();
                     updateDisplay();
                 }
-            }, 500); // Simulate AI thinking for 0.6 seconds
+            }, 300); // Simulate AI thinking for 0.5 seconds
         };
     };
 
