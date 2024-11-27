@@ -136,6 +136,7 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
         isTie,
         switchPlayerTurn,
         getScores,
+        resetBoard: board.resetBoard,
         playerOne,
         playerTwo
     };
@@ -162,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             : '<label>Player 1 <input type="text" id="player-one"></label><label>Player 2 <input type="text" id="player-two"></label>';
 
         startGameBtn.disabled = true;
+        playerInputsDiv.style.display = 'block';
 
         const inputs = playerInputsDiv.querySelectorAll('input');
         inputs.forEach(input => input.addEventListener('input', () => {
@@ -195,16 +197,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const game = GameController(playerOneName, playerTwoNameOrAi, 'X', 'O');
         DisplayGame(game);
     });
-
 });
 
 // Display Logic
 function DisplayGame(game) {
     const playerTurn = document.querySelector('.turn');
+    const gameStatus = document.createElement('h2');
     const boardDiv = document.querySelector('.gameboard');
     const playerOneInfoDiv = document.querySelector('.playerOne-info');
     const playerTwoInfoDiv = document.querySelector('.playerTwo-info');
-    const restartBtns = document.querySelector('.restart');
+    const newGameBtn = document.querySelector('.newGame');
+    const playAgainBtn = document.querySelector('.playAgain');
+    const startScreen = document.querySelector('.start-screen');
+    const gameContainer = document.querySelector('.game-container');
+    const playerInputsDiv = document.querySelector('#player-inputs');
+    const startGameBtn = document.querySelector('#start-game');
     let gameOver = false;
 
     const updateDisplay = () => {
@@ -231,7 +238,8 @@ function DisplayGame(game) {
             });
         });
 
-        playerTurn.textContent = `${currentPlayer.name}'s turn.`; // Update Player Turn
+        gameStatus.textContent = `${currentPlayer.name}'s turn.`; // Update Player Turn
+        playerTurn.appendChild(gameStatus);
 
         // Display player Info
         const scores = game.getScores();
@@ -249,6 +257,14 @@ function DisplayGame(game) {
         playerTwoScore.textContent = `Score: ${scores.playerTwoScore}`;
         playerTwoInfoDiv.appendChild(playerTwoName);
         playerTwoInfoDiv.appendChild(playerTwoScore);
+
+        if (gameOver) {
+            newGameBtn.style.display = 'inline-block'; // Show New Game button
+            playAgainBtn.style.display = 'inline-block'; // Show Play Again button
+        } else {
+            newGameBtn.style.display = 'none'; // Hide New Game button
+            playAgainBtn.style.display = 'none'; // Hide Play Again button
+        }
     };
 
     const handleCellClick = (row, col) => {
@@ -259,7 +275,8 @@ function DisplayGame(game) {
     
         if (result) {
             gameOver = true; // Set gameOver immediately
-            playerTurn.textContent = result;
+            gameStatus.textContent = result;
+            playerTurn.appendChild(gameStatus);
             updateDisplay(); // Refresh display
             return;
         }
@@ -279,15 +296,38 @@ function DisplayGame(game) {
     
                 if (aiResult) {
                     gameOver = true; // Set gameOver if AI wins or it's a draw
-                    playerTurn.textContent = aiResult;
+                    gameStatus.textContent = aiResult;
                 } else {
                     game.switchPlayerTurn();
                 }
     
                 updateDisplay(); // Refresh display after AI's move
-            }, 500); // Simulate AI thinking for 0.5 seconds
+            }, 500); // Simulate AI thinking
         }
     };
+
+    // New Game button logic
+    newGameBtn.addEventListener('click', () => {
+        startScreen.style.display = 'flex';
+        gameContainer.style.display = 'none';
+        startGameBtn.style.display = 'none';
+        playerInputsDiv.style.display = 'none';
+        startScreen.style.display = 'flex';
+        gameOver = false;
+    
+        // Clear gameStatus message
+        gameStatus.textContent = '';
+    });
+
+    // Play Again button logic
+    // TODO: Fix issue with game board not resetting
+    playAgainBtn.addEventListener('click', () => {
+        gameOver = false; 
+        game.resetBoard(); // Reset the game board
+        updateDisplay();   // Refresh the UI
+        gameStatus.textContent = `${game.getActivePlayer().name}'s turn.`; // Set initial turn message
+        playerTurn.appendChild(gameStatus);
+    });
 
     updateDisplay();
 }
