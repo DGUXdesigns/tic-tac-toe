@@ -3,7 +3,7 @@ function Cell() {
     let mark = null;
     const getMark = () => mark;
     const addMark = (newMark) => {
-            mark = newMark;
+        mark = newMark;
     };
     return { getMark, addMark };
 };
@@ -101,20 +101,19 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
 
         // Switch turn
         switchPlayerTurn();
-
     };
 
     const makeAiMove = () => {
         const boardState = board.getBoardState();
         const opponentMarker = activePlayer.marker === 'X' ? 'O' : 'X';
-    
+
         const isWinningMove = (marker, row, col) => {
             board.placeMarker(row, col, marker);
             const win = checkWin(marker);
-            board.getBoard()[row][col].addMark(null); // Undo move
+            board.getBoard()[row][col].addMark(null);
             return win;
         };
-    
+
         // Check for Win or Block
         for (let row = 0; row < 3; row++) {
             for (let col = 0; col < 3; col++) {
@@ -132,13 +131,13 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
                 }
             }
         }
-    
+
         // Play Center if available
         if (boardState[1][1] === null) {
             board.placeMarker(1, 1, activePlayer.marker);
             return;
         }
-    
+
         // Play Opposite Corner if opponent is in a corner
         const corners = [
             [0, 0], [0, 2], [2, 0], [2, 2]
@@ -152,7 +151,7 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
                 }
             }
         }
-    
+
         // Play an empty corner
         for (let [row, col] of corners) {
             if (boardState[row][col] === null) {
@@ -160,7 +159,7 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
                 return;
             }
         }
-    
+
         // Play an empty side
         const sides = [
             [0, 1], [1, 0], [1, 2], [2, 1]
@@ -205,8 +204,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameMode = null;
     let playerOneName = '';
     let playerTwoName = '';
-
-
 
     // Handle game mode selection
     const handleModeSelection = (mode) => {
@@ -281,17 +278,22 @@ function DisplayGame(game) {
                 const cellDiv = document.createElement('div');
                 cellDiv.classList.add('cell');
                 cellDiv.textContent = cell ? cell : '';
-                
+
                 // Disable clicks if the game is over
                 if (!gameOver) {
                     cellDiv.addEventListener('click', () => handleCellClick(rowIndex, colIndex));
                 }
-    
+
                 boardDiv.appendChild(cellDiv);
             });
         });
 
-        gameStatus.textContent = `${currentPlayer.name}'s turn.`; // Update Player Turn
+        if (gameOver) {
+            gameStatus.textContent = gameStatus.textContent || 'Game Over';
+        } else {
+            gameStatus.textContent = `${currentPlayer.name}'s turn.`
+        }
+
         playerTurn.appendChild(gameStatus);
 
         // Display player Info
@@ -328,9 +330,9 @@ function DisplayGame(game) {
     
         if (result) {
             gameOver = true; // Set gameOver immediately
-            gameStatus.textContent = result;
-            playerTurn.appendChild(gameStatus);
-            updateDisplay(); // Refresh display
+            console.log("Game Over:", result);
+            gameStatus.textContent = `Game Over, ${result}`;  // Update the game status message
+            updateDisplay(); // Refresh display after game result
             return;
         }
     
@@ -348,13 +350,13 @@ function DisplayGame(game) {
                         : null;
     
                 if (aiResult) {
-                    gameOver = true; // Set gameOver if AI wins or it's a draw
+                    gameOver = true;
                     gameStatus.textContent = aiResult;
+                    updateDisplay();
                 } else {
                     game.switchPlayerTurn();
+                    updateDisplay();
                 }
-    
-                updateDisplay(); // Refresh display after AI's move
             }, 500); // Simulate AI thinking
         }
     };
@@ -367,14 +369,14 @@ function DisplayGame(game) {
         playerInputsDiv.style.display = 'none';
         startScreen.style.display = 'flex';
         gameOver = false;
-    
+
         // Clear gameStatus message
         gameStatus.textContent = '';
     });
 
     // Play Again button logic
     playAgainBtn.addEventListener('click', () => {
-        gameOver = false; 
+        gameOver = false;
         game.resetBoard(); // Reset the game board
         updateDisplay();   // Refresh the UI
         gameStatus.textContent = `${game.getActivePlayer().name}'s turn.`; // Set initial turn message
