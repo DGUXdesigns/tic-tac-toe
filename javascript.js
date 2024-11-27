@@ -378,6 +378,7 @@ function DisplayGame(game) {
     playAgainBtn.addEventListener('click', () => {
         gameOver = false;
         game.resetBoard(); // Reset the game board
+        game.activePlayer = game.playerOne;
         updateDisplay();   // Refresh the UI
         gameStatus.textContent = `${game.getActivePlayer().name}'s turn.`; // Set initial turn message
         playerTurn.appendChild(gameStatus);
