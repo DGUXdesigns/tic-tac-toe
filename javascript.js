@@ -3,9 +3,7 @@ function Cell() {
     let mark = null;
     const getMark = () => mark;
     const addMark = (newMark) => {
-        if (mark === null) {
             mark = newMark;
-        };
     };
     return { getMark, addMark };
 };
@@ -320,7 +318,6 @@ function DisplayGame(game) {
     });
 
     // Play Again button logic
-    // TODO: Fix issue with game board not resetting
     playAgainBtn.addEventListener('click', () => {
         gameOver = false; 
         game.resetBoard(); // Reset the game board
