@@ -106,16 +106,71 @@ function GameController(playerOneName, playerTwoName, playerOneMarker, playerTwo
 
     const makeAiMove = () => {
         const boardState = board.getBoardState();
-
-        // AI logic: Choose the first empty cell
+        const opponentMarker = activePlayer.marker === 'X' ? 'O' : 'X';
+    
+        const isWinningMove = (marker, row, col) => {
+            board.placeMarker(row, col, marker);
+            const win = checkWin(marker);
+            board.getBoard()[row][col].addMark(null); // Undo move
+            return win;
+        };
+    
+        // Check for Win or Block
         for (let row = 0; row < 3; row++) {
             for (let col = 0; col < 3; col++) {
                 if (boardState[row][col] === null) {
-                    board.placeMarker(row, col, activePlayer.marker);
+                    // Check if AI can win
+                    if (isWinningMove(activePlayer.marker, row, col)) {
+                        board.placeMarker(row, col, activePlayer.marker);
+                        return;
+                    }
+                    // Check if AI needs to block
+                    if (isWinningMove(opponentMarker, row, col)) {
+                        board.placeMarker(row, col, activePlayer.marker);
+                        return;
+                    }
+                }
+            }
+        }
+    
+        // Play Center if available
+        if (boardState[1][1] === null) {
+            board.placeMarker(1, 1, activePlayer.marker);
+            return;
+        }
+    
+        // Play Opposite Corner if opponent is in a corner
+        const corners = [
+            [0, 0], [0, 2], [2, 0], [2, 2]
+        ];
+        for (let [row, col] of corners) {
+            if (boardState[row][col] === opponentMarker) {
+                const opposite = [2 - row, 2 - col];
+                if (boardState[opposite[0]][opposite[1]] === null) {
+                    board.placeMarker(opposite[0], opposite[1], activePlayer.marker);
                     return;
-                };
-            };
-        };
+                }
+            }
+        }
+    
+        // Play an empty corner
+        for (let [row, col] of corners) {
+            if (boardState[row][col] === null) {
+                board.placeMarker(row, col, activePlayer.marker);
+                return;
+            }
+        }
+    
+        // Play an empty side
+        const sides = [
+            [0, 1], [1, 0], [1, 2], [2, 1]
+        ];
+        for (let [row, col] of sides) {
+            if (boardState[row][col] === null) {
+                board.placeMarker(row, col, activePlayer.marker);
+                return;
+            }
+        }
     };
 
     const getScores = () => {
