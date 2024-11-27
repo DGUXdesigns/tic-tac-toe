@@ -204,6 +204,8 @@ function DisplayGame(game) {
     const boardDiv = document.querySelector('.gameboard');
     const playerOneInfoDiv = document.querySelector('.playerOne-info');
     const playerTwoInfoDiv = document.querySelector('.playerTwo-info');
+    const restartBtns = document.querySelector('.restart');
+    let gameOver = false;
 
     const updateDisplay = () => {
         boardDiv.innerHTML = ''; // Clear The Board
@@ -219,7 +221,12 @@ function DisplayGame(game) {
                 const cellDiv = document.createElement('div');
                 cellDiv.classList.add('cell');
                 cellDiv.textContent = cell ? cell : '';
-                cellDiv.addEventListener('click', () => handleCellClick(rowIndex, colIndex));
+                
+                // Disable clicks if the game is over
+                if (!gameOver) {
+                    cellDiv.addEventListener('click', () => handleCellClick(rowIndex, colIndex));
+                }
+    
                 boardDiv.appendChild(cellDiv);
             });
         });
@@ -245,16 +252,20 @@ function DisplayGame(game) {
     };
 
     const handleCellClick = (row, col) => {
+        // Prevent further moves if the game is already over
+        if (gameOver) return;
+    
         const result = game.playRound(row, col);
-        updateDisplay();
-
+    
         if (result) {
-            playerTurn.textContent = result;
+            gameOver = true; // Set gameOver immediately
+            playerTurn.textContent = result; 
+            updateDisplay(); // Refresh display
             return;
-        };
-
+        }
+        // If no result, proceed to update the display and check AI moves
         const activePlayer = game.getActivePlayer();
-
+    
         if (activePlayer.isAi) {
             setTimeout(() => {
                 game.makeAiMove(); // AI makes its move
@@ -263,9 +274,10 @@ function DisplayGame(game) {
                     : game.isTie()
                         ? "It's a Draw!"
                         : null;
-
+    
                 if (aiResult) {
-                    playerTurn.textContent = aiResult; // Display AI win or draw message
+                    gameOver = true; // Set gameOver if AI wins or it's a draw
+                    playerTurn.textContent = aiResult;
                 } else {
                     game.switchPlayerTurn();
                     updateDisplay(); // Continue the game
