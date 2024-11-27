@@ -249,29 +249,31 @@ function DisplayGame(game) {
         updateDisplay();
 
         if (result) {
-            return result;
+            playerTurn.textContent = result;
+            return;
         };
 
         const activePlayer = game.getActivePlayer();
+
         if (activePlayer.isAi) {
             setTimeout(() => {
                 game.makeAiMove(); // AI makes its move
-                updateDisplay();
+                const aiResult = game.checkWin(activePlayer.marker)
+                    ? `${activePlayer.name} wins!`
+                    : game.isTie()
+                        ? "It's a Draw!"
+                        : null;
 
-                const boardState = game.getBoardState();
-                if (game.checkWin(activePlayer.marker)) {
-                    return `${active.Player.name} wins!`;
-                } else if (game.isTie()) {
-                    return "It's A Draw!"
-                }
-
-                // Switch back to user turn if the game isn't over
-                if (!game.checkWin(activePlayer.marker) && !game.isTie()) {
+                if (aiResult) {
+                    playerTurn.textContent = aiResult; // Display AI win or draw message
+                } else {
                     game.switchPlayerTurn();
-                    updateDisplay();
+                    updateDisplay(); // Continue the game
                 }
-            }, 300); // Simulate AI thinking for 0.5 seconds
-        };
+            }, 300); // Simulate AI thinking for 0.3 seconds
+        } else {
+            updateDisplay(); // Update display for the next player
+        }
     };
 
     updateDisplay();
